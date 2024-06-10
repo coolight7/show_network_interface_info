@@ -7,6 +7,8 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
+import java.net.NetworkInterface
+import java.util.Collections
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -16,7 +18,6 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import java.net.InetAddress
-import java.net.NetworkInterface
 import java.net.SocketException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -61,12 +62,42 @@ class ShowNetworkInterfaceInfoPlugin : FlutterPlugin, MethodCallHandler , Activi
                  ]
                  * */
                 result.success(listOf(networkBox))
+            }
+            "getAllNetWorkInfo" -> {
+                val interfaces = getAllNetworkInterfaces();
+                val relist: ArrayList<HashMap<String, Any>> = ArrayList();
+                for (item in interfaces) {
+                    val reData = HashMap<String, Any>();
 
+                    reData["name"] = item.name;
+                    reData["displayName"] = item.displayName;
+                    reData["isUp"] = item.isUp;
+                    reData["isLoopback"] = item.isLoopback;
+                    reData["isPointToPoint"] = item.isPointToPoint;
+                    reData["supportsMulticast"] = item.supportsMulticast();
+
+                    val addressList: ArrayList<HashMap<String, Any>> = ArrayList();
+                    // 获取并打印接口的子接口
+                    for (address in item.interfaceAddresses) {
+                        val addrData = HashMap<String, Any>();
+                        addrData["address"] = address.address.hostAddress;
+                        addrData["networkPrefixLength"] = address.networkPrefixLength;
+                        addressList.add(addrData);
+                    }
+                    reData["addressList"] = addressList;
+                    relist.add(reData);
+                }
+                result.success(relist);
             }
             else -> {
                 result.notImplemented()
             }
         }
+    }
+
+    fun getAllNetworkInterfaces(): List<NetworkInterface> {
+        val interfaces = Collections.list(NetworkInterface.getNetworkInterfaces())
+        return interfaces
     }
 
     fun intToString(@NonNull numberData: Int): String {
