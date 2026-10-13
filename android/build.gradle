@@ -1,19 +1,6 @@
 group 'top.autopc.show_network_interface_info'
 version '1.0-SNAPSHOT'
 
-buildscript {
-    ext.kotlin_version = '1.9.25'
-    repositories {
-        google()
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.5.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
-
 rootProject.allprojects {
     repositories {
         google()
@@ -22,20 +9,23 @@ rootProject.allprojects {
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 
 android {
     namespace "top.autopc.show_network_interface_info"
+
     compileSdkVersion 34
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
+
     defaultConfig {
         minSdkVersion 21
     }
 }
 
-dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}
+// The Kotlin Gradle Plugin is applied by AGP when built-in Kotlin is enabled
+// (and by Flutter for apps that have not migrated yet), so this plugin does not
+// apply it itself. Flutter warns about plugins that do and will fail builds
+// that do in a future version. The Kotlin standard library comes with the
+// Kotlin Gradle Plugin, so no explicit stdlib dependency is needed either.
